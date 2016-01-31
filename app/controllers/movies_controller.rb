@@ -2,6 +2,14 @@ class MoviesController < ApplicationController
   before_action :set_movie, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: [:index, :show]
 
+  def search
+    if params[:search].present?
+      @movies = Movie.search(params[:search])
+    else
+      @movies = Movie.all
+    end
+  end
+
   def index
     @movies = Movie.all
   end
@@ -21,6 +29,9 @@ class MoviesController < ApplicationController
   end
 
   def edit
+    if @movie.user != current_user
+      redirect_to root_path, notice: "This is not your movie to edit"
+    end
   end
 
   def create
@@ -39,7 +50,7 @@ class MoviesController < ApplicationController
 
   def update
     respond_to do |format|
-      if @movie.update(movie_params)
+      if @movie.update(movie_params) && @movie.user == current_user
         format.html { redirect_to @movie, notice: 'Movie was successfully updated.' }
         format.json { render :show, status: :ok, location: @movie }
       else
@@ -50,10 +61,14 @@ class MoviesController < ApplicationController
   end
 
   def destroy
-    @movie.destroy
-    respond_to do |format|
-      format.html { redirect_to movies_url, notice: 'Movie was successfully destroyed.' }
-      format.json { head :no_content }
+    if @movie.user == current_user
+      @movie.destroy
+      respond_to do |format|
+        format.html { redirect_to movies_url, notice: 'Movie was successfully destroyed.' }
+        format.json { head :no_content }
+      end
+    else
+      redirect_to root_path
     end
   end
 

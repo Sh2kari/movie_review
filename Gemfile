@@ -11,6 +11,7 @@ gem 'jbuilder', '~> 2.0'
 gem 'devise', '~> 3.5'
 gem 'paperclip', '~> 4.3'
 gem 'bootstrap-sass', '~> 3.3'
+gem 'searchkick'
 
 gem 'sdoc', '~> 0.4.0', group: :doc
 
